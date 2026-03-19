@@ -1,24 +1,27 @@
 import asyncio
-from os import getenv
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
-TOKEN = getenv("BOT_TOKEN")
+from data.config import BOT_TOKEN
+from data.routers import routers_list
+from database.sql import db
+from utils.run_bot import run_bot
 
 dp = Dispatcher()
 
-
-# Command handler
-@dp.message(Command("start"))
-async def command_start_handler(message: Message) -> None:
-    await message.answer("Hello! I'm a bot created with aiogram.")
-
-
-# Run the bot
 async def main() -> None:
-    bot = Bot(token=TOKEN)
+    default = DefaultBotProperties(parse_mode=ParseMode.HTML)
+    bot = Bot(BOT_TOKEN, default=default)
+
+    dp.include_routers(*routers_list)
+
+    for token in db.tokens_list():
+        asyncio.create_task(run_bot(token))
+
+    print("Bot started")
+
     await dp.start_polling(bot)
 
 
