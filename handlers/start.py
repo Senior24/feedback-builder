@@ -16,4 +16,4 @@ async def start(message: Message):
         msg += "Click one of the buttons below to get started"
         await message.answer(msg, reply_markup=start_keyboard)
     else:
-        await message.answer("🔄️ Bot successfully updated")
+        await message.answer("🔄️ Bot successfully updated", reply_markup=start_keyboard)

@@ -1,3 +1,4 @@
+import asyncio
 import requests
 
 from aiogram import Router, F
@@ -6,6 +7,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
 from database.sql import db
+from keyboards.reply import cancel_button, start_keyboard
+from utils.run_bot import run_bot
 
 router = Router()
 
@@ -14,11 +17,17 @@ class GetToken(StatesGroup):
 
 @router.message(F.text == "➕ New bot")
 async def new_bot(message: Message, state: FSMContext):
-    if db.bots_count(message.from_user.id) == 0:
+    if db.check_pro(message.from_user.id) or db.bots_count(message.from_user.id) == 0:
         await state.set_state(GetToken.token)
-        await message.answer("Enter your bot token")
+        await message.answer("Enter your bot token", reply_markup=cancel_button)
     else:
-        await message.answer("Sorry but you can add only one bot. Purchase premium to add more bots")
+        await message.answer("Sorry but you can add only one bot. Purchase Pro to add more bots")
+
+
+@router.message(GetToken.token, F.text == "🚫 Cancel")
+async def cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("Cancelled", reply_markup=start_keyboard)
 
 
 @router.message(GetToken.token, F.text)
@@ -33,6 +42,7 @@ async def check_token(message: Message, state: FSMContext):
     if result['ok']:
         db.add_bot(message.from_user.id, message.text)
         await state.clear()
-        await message.answer(f"Your bot {result['result']['first_name']} successfully added")
+        asyncio.create_task(run_bot(message.text))
+        await message.answer(f"{result['result']['first_name']} bot added successfully")
     else:
         await message.answer("This token is invalid")

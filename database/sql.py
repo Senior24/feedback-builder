@@ -24,6 +24,15 @@ class Database:
             self.cursor.execute("SELECT * FROM bots WHERE token = ?", (token,))
             return bool(self.cursor.fetchone())
 
+    def give_pro(self, user_id: int):
+        with self.connection:
+            self.connection.execute("UPDATE users SET pro = ? WHERE user_id = ?", (1, user_id))
+
+    def check_pro(self, user_id: int) -> bool:
+        with self.connection:
+            self.cursor.execute("SELECT pro FROM users WHERE user_id = ?", (user_id,))
+            return bool(self.cursor.fetchone()[0])
+
     def bots_count(self, user_id: int) -> int:
         with self.connection:
             self.cursor.execute("SELECT * FROM bots WHERE owner_id = ?", (user_id,))

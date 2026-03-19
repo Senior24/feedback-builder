@@ -11,6 +11,7 @@ async def start(message: Message):
 
     await message.answer(msg)
 
+
 @router.message(F.text)
 async def question_submitted(message: Message):
-    await message.answer("Thank you")
+    await message.reply("Thank you")
