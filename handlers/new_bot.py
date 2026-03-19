@@ -43,6 +43,7 @@ async def check_token(message: Message, state: FSMContext):
         db.add_bot(message.from_user.id, message.text)
         await state.clear()
         asyncio.create_task(run_bot(message.text))
-        await message.answer(f"{result['result']['first_name']} bot added successfully")
+        await message.answer(f"{result['result']['first_name']} bot added successfully",
+                             reply_markup=start_keyboard)
     else:
         await message.answer("This token is invalid")

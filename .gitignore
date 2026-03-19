@@ -180,5 +180,5 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-#Sqlite3 Database File
-database.db
+#Sqlite3 Database Files
+*.db
