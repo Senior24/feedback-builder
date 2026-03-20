@@ -14,6 +14,6 @@ async def start(message: Message):
         msg = f"Hello, {message.from_user.first_name}!\n"
         msg += "This bot helps you to create your own customer support bot without difficulty\n"
         msg += "Click one of the buttons below to get started"
-        await message.answer(msg, reply_markup=start_keyboard)
+        await message.answer(msg, reply_markup=start_keyboard(message.from_user.id))
     else:
-        await message.answer("🔄️ Bot successfully updated", reply_markup=start_keyboard)
+        await message.answer("🔄️ Bot successfully updated", reply_markup=start_keyboard(message.from_user.id))

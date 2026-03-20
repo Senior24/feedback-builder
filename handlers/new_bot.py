@@ -27,7 +27,7 @@ async def new_bot(message: Message, state: FSMContext):
 @router.message(GetToken.token, F.text == "🚫 Cancel")
 async def cancel(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("Cancelled", reply_markup=start_keyboard)
+    await message.answer("Cancelled", reply_markup=start_keyboard(message.from_user.id))
 
 
 @router.message(GetToken.token, F.text)
@@ -44,6 +44,6 @@ async def check_token(message: Message, state: FSMContext):
         await state.clear()
         asyncio.create_task(run_bot(message.text))
         await message.answer(f"{result['result']['first_name']} bot added successfully",
-                             reply_markup=start_keyboard)
+                             reply_markup=start_keyboard(message.from_user.id))
     else:
         await message.answer("This token is invalid")
