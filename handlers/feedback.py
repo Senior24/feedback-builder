@@ -1,8 +1,8 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-def feedback_router():
+def feedback_router(owners_id: list[int] = None):
     router = Router()
 
     @router.message(CommandStart())
@@ -14,7 +14,11 @@ def feedback_router():
 
 
     @router.message(F.text)
-    async def question_submitted(message: Message):
+    async def question_submitted(message: Message, bot: Bot):
         await message.reply("Thank you")
+
+    @router.message(~F.text)
+    async def only_text(message: Message):
+        await message.answer("Sorry, only text messages are accepted")
 
     return router

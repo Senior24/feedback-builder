@@ -1,3 +1,4 @@
+import json
 import sqlite3
 
 class Database:
@@ -38,9 +39,13 @@ class Database:
             self.cursor.execute("SELECT * FROM bots WHERE owner_id = ?", (user_id,))
             return len(self.cursor.fetchall())
 
-    def tokens_list(self) -> list[str]:
+    def tokens_list(self, user_id: int = None) -> list[str]:
         with self.connection:
-            self.cursor.execute("SELECT token FROM bots")
+            if user_id:
+                self.cursor.execute('SELECT token FROM bots WHERE owner_id = ?', (user_id,))
+            else:
+                self.cursor.execute("SELECT token FROM bots")
+
             rows = self.cursor.fetchall()
             tokens = [row[0] for row in rows]
 

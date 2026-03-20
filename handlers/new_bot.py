@@ -19,7 +19,9 @@ class GetToken(StatesGroup):
 async def new_bot(message: Message, state: FSMContext):
     if db.check_pro(message.from_user.id) or db.bots_count(message.from_user.id) == 0:
         await state.set_state(GetToken.token)
-        await message.answer("Enter your bot token", reply_markup=cancel_button)
+        msg = "<b>Enter bot token</b>\n"
+        msg += "You can get it by creating a bot in @BotFather"
+        await message.answer(msg, reply_markup=cancel_button)
     else:
         await message.answer("Sorry but you can add only one bot. Purchase Pro to add more bots")
 
@@ -33,7 +35,7 @@ async def cancel(message: Message, state: FSMContext):
 @router.message(GetToken.token, F.text)
 async def check_token(message: Message, state: FSMContext):
     if db.check_bot(message.text):
-        await message.answer("You already added this bot")
+        await message.answer("This bot has already been added")
         return
 
     result = requests.get(f"https://api.telegram.org/bot{message.text}/getME")
