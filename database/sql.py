@@ -51,4 +51,14 @@ class Database:
 
             return tokens
 
+    def set_welcome_message(self, message: str, token: str):
+        with self.connection:
+            self.connection.execute("UPDATE bots SET welcome_message = ? WHERE token = ?", (message, token))
+
+    def get_welcome_message(self, token: str) -> str | None:
+        with self.connection:
+            self.cursor.execute("SELECT welcome_message FROM bots WHERE token = ?", (token,))
+            return self.cursor.fetchone()[0]
+
+
 db = Database()

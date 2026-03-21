@@ -1,8 +1,8 @@
-from handlers import pro, start, new_bot, manage_bots
+from handlers import commands, new_bot, manage_bots, pro
 
 routers_list = [
-    pro.router,
-    start.router,
+    commands.router,
     new_bot.router,
-    manage_bots.router
+    manage_bots.router,
+    pro.router,
 ]

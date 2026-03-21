@@ -1,5 +1,6 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from database.sql import db
@@ -17,3 +18,9 @@ async def start(message: Message):
         await message.answer(msg, reply_markup=start_keyboard(message.from_user.id))
     else:
         await message.answer("🔄️ Bot successfully updated", reply_markup=start_keyboard(message.from_user.id))
+
+
+@router.message((F.text == "🚫 Cancel") | (F.text == "/cancel"))
+async def cancel(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer("Cancelled", reply_markup=start_keyboard(message.from_user.id))
