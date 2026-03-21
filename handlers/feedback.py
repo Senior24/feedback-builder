@@ -2,7 +2,7 @@ from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-def feedback_router(owners_id: list[int] = None):
+def feedback_router():
     router = Router()
 
     @router.message(CommandStart())

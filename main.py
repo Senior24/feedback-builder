@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
+from data.bots import running_bots
 from data.config import BOT_TOKEN
 from data.routers import routers_list
 from database.sql import db
@@ -18,7 +19,8 @@ async def main() -> None:
     dp.include_routers(*routers_list)
 
     for token in db.tokens_list():
-        asyncio.create_task(run_bot(token))
+        task = asyncio.create_task(run_bot(token))
+        running_bots[token] = task
 
     print("Bot started")
 

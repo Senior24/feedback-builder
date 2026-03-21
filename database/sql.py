@@ -2,12 +2,12 @@ import json
 import sqlite3
 
 class Database:
-    def __init__(self, db_path: str = "database.db") -> None:
+    def __init__(self, db_path: str = "database.db"):
         self.connection = sqlite3.connect(db_path)
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.connection.cursor()
 
-    def add_user(self, user_id: int) -> None:
+    def add_user(self, user_id: int):
         with self.connection:
             self.connection.execute("INSERT INTO users (user_id) VALUES (?)", (user_id,))
 
@@ -16,14 +16,23 @@ class Database:
             self.cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
             return bool(self.cursor.fetchone())
 
-    def add_bot(self, user_id: int, token: str) -> None:
+    def add_bot(self, user_id: int, token: str):
         with self.connection:
             self.connection.execute("INSERT INTO bots (owner_id, token) VALUES (?,?)", (user_id, token))
+
+    def remove_bot(self, token: str):
+        with self.connection:
+            self.connection.execute("DELETE FROM bots WHERE token = ?", (token,))
 
     def check_bot(self, token: str) -> bool:
         with self.connection:
             self.cursor.execute("SELECT * FROM bots WHERE token = ?", (token,))
             return bool(self.cursor.fetchone())
+
+    def get_owner_id(self, token: str) -> int:
+        with self.connection:
+            self.cursor.execute("SELECT owner_id FROM bots WHERE token = ?", (token,))
+            return self.cursor.fetchone()[0]
 
     def give_pro(self, user_id: int):
         with self.connection:

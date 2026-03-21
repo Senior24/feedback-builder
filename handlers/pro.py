@@ -14,7 +14,7 @@ async def pro(message: Message):
             description="This purchase allows you to add more bots",
             payload="pro",
             currency="XTR",
-            prices=[LabeledPrice(label="Pro", amount=1)],
+            prices=[LabeledPrice(label="Pro", amount=200)],
         )
 
         await message.answer("Stars won't be refunded. Since its a demo use /free command to get it for free")

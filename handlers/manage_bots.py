@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
+from data.bots import running_bots, running_dps
 from database.sql import db
 from keyboards.inline import bots_list, bot_settings
 from keyboards.reply import cancel_button, start_keyboard
@@ -32,6 +33,10 @@ async def manage(callback: CallbackQuery, state: FSMContext):
     command = data[0]
     token = data[1]
 
+    if not db.check_bot(token):
+        await callback.message.delete()
+        return
+
     if command == "edit":
         if db.check_pro(callback.from_user.id):
             await callback.message.delete()
@@ -43,14 +48,29 @@ async def manage(callback: CallbackQuery, state: FSMContext):
             msg += "You can use format tags for personalisation:\n"
             msg += "<code>{name}</code> - displays the full name of the user\n"
             msg += "<code>{first_name}</code> - displays the first name of the user\n"
-            msg += "<code>{last_name}</code> - displays the last name of the user\n"
+            msg += "<code>{last_name}</code> - displays the last name of the user\n\n"
+
+            current_message = db.get_welcome_message(token)
+
+            if current_message:
+                msg += "Current message:\n" + current_message
+
             await callback.message.answer(msg, reply_markup=cancel_button)
         else:
             await callback.answer("This is a Pro feature")
     if command == "ma":
         ...
     if command == "rm":
-        ...
+        db.remove_bot(token)
+
+        await running_dps[token].stop_polling()
+        running_bots[token].cancel()
+
+        del running_bots[token]
+        del running_dps[token]
+
+        await callback.answer("Deleted")
+        await callback.message.delete()
 
 
 @router.callback_query(F.data.startswith("back"))

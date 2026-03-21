@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 
+from data.bots import running_bots
 from database.sql import db
 from keyboards.reply import cancel_button, start_keyboard
 from utils.run_bot import run_bot
@@ -28,6 +29,8 @@ async def new_bot(message: Message, state: FSMContext):
 
 @router.message(GetToken.token, F.text)
 async def check_token(message: Message, state: FSMContext):
+    await message.delete()
+
     if db.check_bot(message.text):
         await message.answer("This bot has already been added")
         return
@@ -37,8 +40,12 @@ async def check_token(message: Message, state: FSMContext):
 
     if result['ok']:
         db.add_bot(message.from_user.id, message.text)
+
         await state.clear()
-        asyncio.create_task(run_bot(message.text))
+
+        task = asyncio.create_task(run_bot(message.text))
+        running_bots[message.text] = task
+
         await message.answer(f"{result['result']['first_name']} bot added successfully",
                              reply_markup=start_keyboard(message.from_user.id))
     else:
