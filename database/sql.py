@@ -29,10 +29,29 @@ class Database:
             self.cursor.execute("SELECT * FROM bots WHERE token = ?", (token,))
             return bool(self.cursor.fetchone())
 
-    def get_owner_id(self, token: str) -> int:
+    def admin(self, user_id: int, token: str, add: bool = False, remove: bool = False):
+        with self.connection:
+            self.cursor.execute("SELECT admins FROM bots WHERE token = ?", (token,))
+            result = self.cursor.fetchone()[0]
+            admins = json.loads(result) if result else []
+
+            if add:
+                admins.append(user_id)
+            if remove:
+                admins.remove(user_id)
+
+            self.connection.execute("UPDATE bots SET admin = ? WHERE token = ?", (json.dumps(admins), token))
+
+    def admins_list(self, token: str) -> list[int]:
         with self.connection:
             self.cursor.execute("SELECT owner_id FROM bots WHERE token = ?", (token,))
-            return self.cursor.fetchone()[0]
+            owner_id = self.cursor.fetchone()[0]
+            self.cursor.execute("SELECT admins FROM bots WHERE token = ?", (token,))
+            result = self.cursor.fetchone()[0]
+            admins = json.loads(result) if result else []
+
+            admins.append(owner_id)
+            return admins
 
     def give_pro(self, user_id: int):
         with self.connection:
