@@ -3,15 +3,20 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
+from contextlib import suppress
+
 from data.bots import running_bots, running_dps
 from database.sql import db
-from keyboards.inline import bots_list, bot_settings
+from keyboards.inline import bots_list, bot_settings, manage_admins
 from keyboards.reply import cancel_button, start_keyboard
 
 router = Router()
 
 class WelcomeMessage(StatesGroup):
     message = State()
+
+class AddAdmin(StatesGroup):
+    admin = State()
 
 @router.message(F.text == "📋 Manage bots")
 async def manage_bots(message: Message):
@@ -59,7 +64,11 @@ async def manage(callback: CallbackQuery, state: FSMContext):
         else:
             await callback.answer("This is a Pro feature")
     if command == "ma":
-        ...
+        if db.check_pro(callback.from_user.id):
+            await callback.message.edit_text("Add admin or remove by clicking on ID",
+                                             reply_markup=manage_admins(token))
+        else:
+            await callback.answer("This is a Pro feature")
     if command == "rm":
         db.remove_bot(token)
 
@@ -94,3 +103,42 @@ async def set_message(message: Message, state: FSMContext):
 @router.message(WelcomeMessage.message, ~F.text)
 async def text_only(message: Message):
     await message.answer("Only text messages are allowed")
+
+
+@router.callback_query(F.data.contains("$"))
+async def admins_list(callback: CallbackQuery, state: FSMContext):
+    data = callback.data.split("$")
+    command = data[0]
+    token = data[1]
+
+    if command == "add":
+        await state.set_state(AddAdmin.admin)
+        await state.update_data(token=token)
+        await callback.answer()
+        await callback.message.answer("Forward a message from a user to add them as an administrator", reply_markup=cancel_button)
+    else:
+        admin = data[2]
+
+        try:
+            db.admin(int(admin), token, remove=True)
+            await callback.answer("Successfully removed")
+        except:
+            await callback.answer("Already removed")
+
+        with suppress(Exception):
+            await callback.message.edit_reply_markup(reply_markup=manage_admins(token))
+
+
+@router.message(AddAdmin.admin)
+async def add_admin(message: Message, state: FSMContext):
+    data = await state.get_data()
+    try:
+        if message.forward_from.id not in db.admins_list(data['token']):
+            db.admin(message.forward_from.id, data['token'], add=True)
+            await state.clear()
+            await message.answer("New admin added successfully",
+                                 reply_markup=start_keyboard(message.from_user.id))
+        else:
+            await message.answer("This admin already exists")
+    except:
+        await message.answer("This is not a forwarded message")

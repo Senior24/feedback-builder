@@ -40,9 +40,9 @@ class Database:
             if remove:
                 admins.remove(user_id)
 
-            self.connection.execute("UPDATE bots SET admin = ? WHERE token = ?", (json.dumps(admins), token))
+            self.connection.execute("UPDATE bots SET admins = ? WHERE token = ?", (json.dumps(admins), token))
 
-    def admins_list(self, token: str) -> list[int]:
+    def admins_list(self, token: str, with_owner: bool = True) -> list[int]:
         with self.connection:
             self.cursor.execute("SELECT owner_id FROM bots WHERE token = ?", (token,))
             owner_id = self.cursor.fetchone()[0]
@@ -50,7 +50,9 @@ class Database:
             result = self.cursor.fetchone()[0]
             admins = json.loads(result) if result else []
 
-            admins.append(owner_id)
+            if with_owner:
+                admins.append(owner_id)
+
             return admins
 
     def give_pro(self, user_id: int):

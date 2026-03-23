@@ -31,6 +31,9 @@ def feedback_router():
 
         await message.answer(msg)
 
+        if message.from_user.id in db.admins_list(bot.token):
+            await message.answer("For admins: You can answer to questions by replying to messages")
+
 
     @router.message(F.text)
     async def question_submitted(message: Message, bot: Bot):

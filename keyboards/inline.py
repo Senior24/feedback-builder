@@ -24,3 +24,17 @@ def bot_settings(token: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🗑️ Remove bot", callback_data="rm@"+token)],
         [InlineKeyboardButton(text="🔙 Back", callback_data="back_bot")]
     ])
+
+def manage_admins(token: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    admins = db.admins_list(token, with_owner=False)
+
+    builder.button(text="➕ Add admin", callback_data=f"add${token}")
+
+    for admin in admins:
+        builder.button(text=f"Remove: {admin}", callback_data=f"rm${token}${admin}")
+
+    builder.button(text="🔙 Back", callback_data="back_bot")
+
+    builder.adjust(1)
+    return  builder.as_markup()
