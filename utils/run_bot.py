@@ -6,6 +6,7 @@ from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramConflictError, TelegramUnauthorizedError
 
 from data.bots import running_dps
+from database.sql import db
 from handlers.feedback import feedback_router
 
 async def run_bot(token: str):
@@ -20,9 +21,9 @@ async def run_bot(token: str):
 
         await dp.start_polling(bot)
     except TelegramConflictError:
-        pass
+        db.remove_bot(token)
     except TelegramUnauthorizedError:
-        pass
+        db.remove_bot(token)
     except asyncio.CancelledError:
         await bot.session.close()
         raise

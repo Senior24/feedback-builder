@@ -10,11 +10,11 @@ def start_keyboard(user_id: int) -> ReplyKeyboardMarkup:
     builder.button(text="📋 Manage bots")
 
     if not db.check_pro(user_id):
-        builder.button(text="💎 Buy Pro")
+        builder.button(text="💎 Buy Pro", style="primary")
 
     builder.adjust(1)
     return builder.as_markup(resize_keyboard=True)
 
 cancel_button = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="🚫 Cancel")]
+    [KeyboardButton(text="🚫 Cancel", style="danger")]
 ], resize_keyboard=True)
