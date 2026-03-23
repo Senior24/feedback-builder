@@ -22,7 +22,7 @@ def bot_settings(token: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="📝 Edit welcome message", callback_data="edit@"+token)],
         [InlineKeyboardButton(text="👤 Manage admins", callback_data="ma@"+token)],
         [InlineKeyboardButton(text="🗑️ Remove bot", callback_data="rm@"+token)],
-        [InlineKeyboardButton(text="🔙 Back", callback_data="back_bot")]
+        [InlineKeyboardButton(text="🔙 Back", callback_data="back%bot")]
     ])
 
 def manage_admins(token: str) -> InlineKeyboardMarkup:
@@ -34,7 +34,7 @@ def manage_admins(token: str) -> InlineKeyboardMarkup:
     for admin in admins:
         builder.button(text=f"Remove: {admin}", callback_data=f"rm${token}${admin}")
 
-    builder.button(text="🔙 Back", callback_data="back_bot")
+    builder.button(text="🔙 Back", callback_data=f"back%{token}")
 
     builder.adjust(1)
     return  builder.as_markup()

@@ -84,11 +84,13 @@ async def manage(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("back"))
 async def back(callback: CallbackQuery):
-    page = callback.data.split("_")[1]
+    page = callback.data.split("%")[1]
 
     if page == "bot":
         await callback.message.edit_text("Select one of the bots",
                                          reply_markup=bots_list(callback.from_user.id))
+    else:
+        await callback.message.edit_text("Settings", reply_markup=bot_settings(page))
 
 
 @router.message(WelcomeMessage.message, F.text)
