@@ -18,6 +18,8 @@ async def main() -> None:
 
     dp.include_routers(*routers_list)
 
+    db.create_tables()
+
     for token in db.tokens_list():
         task = asyncio.create_task(run_bot(token))
         running_bots[token] = task

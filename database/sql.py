@@ -7,6 +7,20 @@ class Database:
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.connection.cursor()
 
+    def create_tables(self):
+        with self.connection:
+            self.connection.execute("""CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY UNIQUE NOT NULL,
+            pro     INTEGER DEFAULT (0) NOT NULL
+            );""")
+
+            self.connection.execute("""CREATE TABLE IF NOT EXISTS bots (
+            owner_id        INTEGER REFERENCES users (user_id) ON DELETE CASCADE,
+            token           TEXT    UNIQUE,
+            admins          TEXT,
+            welcome_message TEXT
+            );""")
+
     def add_user(self, user_id: int):
         with self.connection:
             self.connection.execute("INSERT INTO users (user_id) VALUES (?)", (user_id,))
